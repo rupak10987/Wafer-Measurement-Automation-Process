@@ -321,51 +321,37 @@ public:
     }
     bool promptUserForChoice()
     {
-        cout<<"Measurement Menu\n";
-        bool notExit = selectYesNo("Start Measurement(y/n)?: ");
-        if (!notExit)
-            return true;
-        cout<<"Enter Measurement Choices(Can Provide Multiple Choices Separated by Space)"<<endl;
-        cout<<"0-All, 1-Thickness, 2-Stress, 3-Roughness, 4-Resistance, 5-Film Thickness\n";
+        cout<<"Measurement Menu\n\n";
 
+        cout<<"Enter Measurement Choices(Can Provide Multiple Choices Separated by Space)"<<endl;
+        cout<<"1-Thickness, 2-Stress, 3-Roughness, 4-Resistance, 5-Film Thickness\n";
+        choices.clear();
         while(true)
         {
-            if (choice>=6 || choice<0)
-                return true;//exit
             cin>>choice;
-            if (cin.peek()=='\n')
-            {
-                cout<<"\n\n------------Starting Measurements------------\n\n";
-            }
-            if(choice == 0)//space separated
-            {
-                monitorMeasurement=selectYesNo("\nMonitor While Measurement Ongoing(y/n)? ");
-                if (monitorMeasurement)
-                    cout<<"------------------Monitoring-----------------\n";
-                doAllMeasurementProcss();
-                cout<<"\n--------------Measurement finished--------------\n";
-                return false;
-            }
             bool flag = false;
             for(int i=0; i<choices.size(); i++)
             {
-                if (choices[i]==choice || choice>5)//dont record duplicate or invalid choices
+                if (choices[i]==choice || choice>5 || choice<=0)//dont record duplicate or invalid choices
                 {
                     flag = true;
                     break;
                 }
-
             }
             if(!flag)
                 choices.push_back(choice);
             if(cin.peek() == '\n')
                 break;
         }
-        monitorMeasurement=selectYesNo("\nMonitor While Measurement Ongoing(y/n)?");
-        if (monitorMeasurement)
-            cout<<"------------------Monitoring-----------------\n";
-        doSelectiveMeasurementProcss();
-        cout<<"\n-------------Measurement finished-------------\n";
+        cout<<"\nSelected Tools Added to The System\n";
+        bool startMeasuring = selectYesNo("Start Measurement(y/n)? ");
+        if (startMeasuring)
+        {
+            monitorMeasurement = selectYesNo("Monitor While Measurement Ongoing(y/n)? ");
+            doSelectiveMeasurementProcss();
+        }
+        else
+            return true;//exit program
         return false;
     }
 
@@ -378,19 +364,6 @@ public:
             robot_arm.giveWaferToTool(*tools[i-1]);
             (*tools[i-1]).measure(result_storage);
             robot_arm.pickWaferFromTool(*tools[i-1]);
-        }
-        robot_arm.returnToCassette(cassette);
-        result_storage.saveResult();
-    }
-    void doAllMeasurementProcss()
-    {
-        robot_arm.pickWaferFromCassette(cassette);
-        robot_arm.allignWafer();
-        for(int i=0; i<tools.size(); i++)
-        {
-            robot_arm.giveWaferToTool(*tools[i]);
-            (*tools[i]).measure(result_storage);
-            robot_arm.pickWaferFromTool(*tools[i]);
         }
         robot_arm.returnToCassette(cassette);
         result_storage.saveResult();
