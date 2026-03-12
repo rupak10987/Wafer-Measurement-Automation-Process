@@ -7,6 +7,19 @@
 #include <ctime>
 #include<deque>
 using namespace std;
+bool monitorMeasurement = true;//global variable which can be accessed by all classes and will be set by user choice
+bool selectYesNo(string prompt)
+{
+    cout<<prompt;
+    char c;
+    cin>>c;
+    if(c=='y')
+        return true;
+    else if (c == 'n')
+        return false;
+    else
+        return true;
+}
 
 class Wafer
 {
@@ -115,12 +128,15 @@ public:
     }
     void saveResult()
     {
-         ofstream file("results.txt", ios::app);
-         file << result << endl;
-         cout << "Saved result to file " << "results.txt" << endl;
-         file.close();
-         cout<<"Result Data: "<<result<<endl;
-         result.clear();
+        bool save = selectYesNo("Save Result In File(y/n): ");
+        if(!save)
+            return;
+        ofstream file("results.txt", ios::app);
+        file << result << endl;
+        cout << "Saved result to file " << "results.txt" << endl;
+        file.close();
+        cout<<"Result Data: "<<result<<endl;
+        result.clear();
     }
 };
 
@@ -155,8 +171,11 @@ public:
     ThicknessTool() : MeasurementTool("Thickness Tool") {}
     void measure(ResultStorage& save) override
     {
-        cout << "Measuring Thickness of " << heldWafer->info() << endl;
-        cout<< "Thickness: "<<heldWafer->getThickness()<<endl;
+        if (monitorMeasurement)
+        {
+            cout << "Measuring Thickness of " << heldWafer->info() << endl;
+            cout<< "Thickness: "<<heldWafer->getThickness()<<endl;
+        }
         string result_string = heldWafer->info() + " - Thickness:" + to_string(heldWafer->getThickness()) + ", ";
         save.appendResultData(result_string);
     }
@@ -168,8 +187,11 @@ public:
     RoughnessTool() : MeasurementTool("Roughness Tool") {}
     void measure(ResultStorage& save) override
     {
-        cout << "Measuring Roughness of " << heldWafer->info() << endl;
-        cout<< "Roughness: "<<heldWafer->getRoughness()<<endl;
+        if (monitorMeasurement)
+        {
+            cout << "Measuring Roughness of " << heldWafer->info() << endl;
+            cout<< "Roughness: "<<heldWafer->getRoughness()<<endl;
+        }
         string result_string = heldWafer->info() + " - Roughness:" + to_string(heldWafer->getRoughness()) + ", ";
         save.appendResultData(result_string);
     }
@@ -181,8 +203,12 @@ public:
     ResistanceTool() : MeasurementTool("Resistance Tool") {}
     void measure(ResultStorage& save) override
     {
-        cout << "Measuring Resistance of " << heldWafer->info() << endl;
-        cout<< "Resistance: "<<heldWafer->getResistance()<<endl;
+        if (monitorMeasurement)
+        {
+            cout << "Measuring Resistance of " << heldWafer->info() << endl;
+            cout<< "Resistance: "<<heldWafer->getResistance()<<endl;
+        }
+
         string result_string = heldWafer->info() + " - Resistance:" + to_string(heldWafer->getResistance()) + ", ";
         save.appendResultData(result_string);
     }
@@ -194,8 +220,12 @@ public:
     FilmThicknessTool() : MeasurementTool("FilmThickness Tool") {}
     void measure(ResultStorage& save) override
     {
-        cout << "Measuring FilmThickness of " << heldWafer->info() << endl;
-        cout<< "Film Thickness: "<<heldWafer->getFilmThickness()<<endl;
+        if (monitorMeasurement)
+        {
+            cout << "Measuring FilmThickness of " << heldWafer->info() << endl;
+            cout<< "Film Thickness: "<<heldWafer->getFilmThickness()<<endl;
+        }
+
         string result_string =heldWafer->info() + " - Film Thickness" + to_string(heldWafer->getFilmThickness()) + ", ";
         save.appendResultData(result_string);
     }
@@ -207,8 +237,12 @@ public:
     StressTool() : MeasurementTool("Stress Tool") {}
     void measure(ResultStorage& save) override
     {
-        cout << "Measuring Stress of " << heldWafer->info() << endl;
-        cout<< "Stress: "<<heldWafer->getStress()<<endl;
+        if (monitorMeasurement)
+        {
+            cout << "Measuring Stress of " << heldWafer->info() << endl;
+            cout<< "Stress: "<<heldWafer->getStress()<<endl;
+        }
+
         string result_string = heldWafer->info() + " - Resistance:" + to_string(heldWafer->getStress()) + ", ";
         save.appendResultData(result_string);
     }
@@ -223,27 +257,32 @@ public:
     {
         if (heldWafer!=nullptr)
         {
-            cout<<"alligning wafer("<<heldWafer->info()<<")" << " " <<heldWafer->getAllignment()<<" -> ";
+            if (monitorMeasurement)
+                cout<<"alligning wafer("<<heldWafer->info()<<")" << " " <<heldWafer->getAllignment()<<" -> ";
             heldWafer->setAllignment(0.0);
-            cout<<heldWafer->getAllignment()<<endl;
+            if (monitorMeasurement)
+                cout<<heldWafer->getAllignment()<<endl;
         }
     }
     void pickWaferFromTool(MeasurementTool& tool)
     {
         heldWafer = tool.giveWaferToRobot();
-        cout << "Robot picked wafer" << heldWafer->info() <<" from "<<tool.getName()<<endl;
+        if (monitorMeasurement)
+            cout << "Robot picked wafer" << heldWafer->info() <<" from "<<tool.getName()<<endl;
     }
     void pickWaferFromCassette(Cassette& cassette)
     {
         heldWafer = cassette.getTopWafer();
-        cout << "Robot picked wafer" << heldWafer->info() <<" from cassette"<< endl;
+        if (monitorMeasurement)
+            cout << "Robot picked wafer" << heldWafer->info() <<" from cassette"<< endl;
     }
 
     void giveWaferToTool(MeasurementTool &tool)
     {
         if(heldWafer != nullptr)
         {
-            cout << "Robot handing wafer"<<heldWafer->info() <<" to "<< tool.getName()<<endl;
+            if (monitorMeasurement)
+                cout << "Robot handing wafer"<<heldWafer->info() <<" to "<< tool.getName()<<endl;
             tool.heldWafer = this -> heldWafer;
             heldWafer = nullptr;
         }
@@ -256,7 +295,8 @@ public:
             Wafer* temp = heldWafer;
             heldWafer = nullptr;
             cassette.addWafer(temp);
-            cout << "Robot returned wafer: "<<temp->info()<< " to cassette"<<endl;
+            if (monitorMeasurement)
+                cout << "Robot returned wafer: "<<temp->info()<< " to cassette"<<endl;
         }
     }
 };
@@ -282,23 +322,26 @@ public:
     bool promptUserForChoice()
     {
         cout<<"Measurement Menu\n";
-        cout<<"Enter Measurement Choices(Can Provice Multiple Choices Separated by Space)"<<endl;
-        cout<<"0-All, 1-Thickness, 2-Stress, 3-Roughness, 4-Resistance, 5-Film Thickness, 6-Exit\n";
+        bool notExit = selectYesNo("Start Measurement(y/n)?: ");
+        if (!notExit)
+            return true;
+        cout<<"Enter Measurement Choices(Can Provide Multiple Choices Separated by Space)"<<endl;
+        cout<<"0-All, 1-Thickness, 2-Stress, 3-Roughness, 4-Resistance, 5-Film Thickness\n";
 
         while(true)
         {
+            if (choice>=6 || choice<0)
+                return true;//exit
             cin>>choice;
             if (cin.peek()=='\n')
             {
-            cout<<"\n\n------------Starting Measurements------------\n\n";
-            cout<<"------------------Monitoring-----------------\n";
+                cout<<"\n\n------------Starting Measurements------------\n\n";
             }
-
-            if (choice == 6 || choice>6)
-                return true;//exit
             if(choice == 0)//space separated
             {
-                choices.clear();
+                monitorMeasurement=selectYesNo("\nMonitor While Measurement Ongoing(y/n)? ");
+                if (monitorMeasurement)
+                    cout<<"------------------Monitoring-----------------\n";
                 doAllMeasurementProcss();
                 cout<<"\n--------------Measurement finished--------------\n";
                 return false;
@@ -318,6 +361,9 @@ public:
             if(cin.peek() == '\n')
                 break;
         }
+        monitorMeasurement=selectYesNo("\nMonitor While Measurement Ongoing(y/n)?");
+        if (monitorMeasurement)
+            cout<<"------------------Monitoring-----------------\n";
         doSelectiveMeasurementProcss();
         cout<<"\n-------------Measurement finished-------------\n";
         return false;
@@ -327,32 +373,26 @@ public:
     {
         robot_arm.pickWaferFromCassette(cassette);
         robot_arm.allignWafer();
-        cout<<endl;
         for (int i:choices)
         {
             robot_arm.giveWaferToTool(*tools[i-1]);
             (*tools[i-1]).measure(result_storage);
             robot_arm.pickWaferFromTool(*tools[i-1]);
-            cout<<endl;
         }
         robot_arm.returnToCassette(cassette);
-        cout<<endl;
         result_storage.saveResult();
     }
     void doAllMeasurementProcss()
     {
         robot_arm.pickWaferFromCassette(cassette);
         robot_arm.allignWafer();
-        cout<<endl;
         for(int i=0; i<tools.size(); i++)
         {
             robot_arm.giveWaferToTool(*tools[i]);
             (*tools[i]).measure(result_storage);
             robot_arm.pickWaferFromTool(*tools[i]);
-            cout<<endl;
         }
         robot_arm.returnToCassette(cassette);
-        cout<<endl;
         result_storage.saveResult();
     }
 

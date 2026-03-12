@@ -1,1 +1,1 @@
-
+(1, silicon) - Thickness:55.946529, (1, silicon) - Resistance:18.393507, (1, silicon) - Roughness:81.118195, (1, silicon) - Resistance:71.279030, (1, silicon) - Film Thickness6.762902, 
